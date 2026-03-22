@@ -26,7 +26,6 @@
 #include <lib/core/TLVReader.h>
 #include <lib/support/Span.h>
 #include <lib/support/TypeTraits.h>
-#include <stdint.h>
 #include <string.h>
 
 // #include <controller_rest_apis.h>

@@ -1,6 +1,6 @@
-idf_component_register(SRC_DIRS          "." "utils" "wifi" "console" "matter" "devicemanager" "storage" "mqtt_new" "expose" "binding" "cluster_handlers"
+idf_component_register(SRC_DIRS          "." "utils" "wifi" "console" "matter" "devicemanager" "storage" "mqtt_new" "expose" "binding"
                        INCLUDE_DIRS      "."
-                       PRIV_INCLUDE_DIRS "." "utils" "wifi" "console" "matter" "devicemanager" "storage" "mqtt_new" "expose" "binding" "cluster_handlers"
+                       PRIV_INCLUDE_DIRS "." "utils" "wifi" "console" "matter" "devicemanager" "storage" "mqtt_new" "expose" "binding"
                        LDFRAGMENTS "linker.lf")
 
 # Add zap-generated include path for controller builds (when Matter server is disabled)
