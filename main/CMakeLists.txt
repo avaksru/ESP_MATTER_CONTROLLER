@@ -9,6 +9,7 @@ target_include_directories(${COMPONENT_LIB} PRIVATE
     "${MATTER_SDK_PATH}/zzz_generated/app-common"
     "${CMAKE_CURRENT_SOURCE_DIR}/../managed_components/espressif__esp_matter/components/esp_matter/zap_common"
     "${CMAKE_CURRENT_SOURCE_DIR}/../managed_components/espressif__esp_matter/components/esp_matter/zap_common/zap-generated"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../managed_components/espressif__esp_matter/components/esp_matter/data_model"
 )
 
 # Add LittleFS component dependency

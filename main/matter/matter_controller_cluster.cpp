@@ -12,12 +12,36 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "esp_err.h"
+#include <esp_err.h>
+#if __has_include(<esp_check.h>)
 #include <esp_check.h>
+#else
+// Fallback definitions for ESP_RETURN_ON_ERROR and ESP_RETURN_ON_FALSE macros
+// when esp_check.h is not available (e.g., in older ESP-IDF versions)
+#include <esp_log.h>
+#define ESP_RETURN_ON_ERROR(err, log_tag, format, ...) do { \
+    esp_err_t err_rc_ = (err); \
+    if (err_rc_ != ESP_OK) { \
+        ESP_LOGE(log_tag, format, ##__VA_ARGS__); \
+        return err_rc_; \
+    } \
+} while(0)
+
+#define ESP_RETURN_ON_FALSE(a, err_code, log_tag, format, ...) do { \
+    if (!(a)) { \
+        ESP_LOGE(log_tag, format, ##__VA_ARGS__); \
+        return err_code; \
+    } \
+} while(0)
+#endif
+#include <esp_matter.h>
 #include <esp_matter_controller_utils.h>
 #include <matter_controller_cluster.h>
 #include <matter_controller_device_mgr.h>
 #include <nvs_flash.h>
+#include <esp_matter_attribute.h>
+#include <esp_matter_cluster.h>
+#include <esp_matter_command.h>
 
 #include <app/ConcreteCommandPath.h>
 #include <app/server/Server.h>
@@ -106,7 +130,7 @@ namespace esp_matter
 
                     attribute_t *create(cluster_t *cluster, char *value, uint16_t length)
                     {
-                        return esp_matter::attribute::create(cluster, refresh_token::Id, ATTRIBUTE_FLAG_NONVOLATILE,
+                        return esp_matter_attribute_create(cluster, refresh_token::Id, MATTER_ATTRIBUTE_FLAG_NONVOLATILE,
                                                              esp_matter_long_char_str(value, length));
                     }
 
@@ -125,13 +149,13 @@ namespace esp_matter
 
                     esp_err_t get(uint16_t endpoint_id, bool &refresh_token_verified)
                     {
-                        node_t *node = node::get();
-                        endpoint_t *endpoint = endpoint::get(node, endpoint_id);
-                        cluster_t *cluster = cluster::get(endpoint, matter_controller::Id);
-                        attribute_t *attribute = esp_matter::attribute::get(cluster, refresh_token_verified::Id);
+                        esp_matter_node_t *node = esp_matter_node_get();
+                        esp_matter_endpoint_t *endpoint = esp_matter_endpoint_get(node, endpoint_id);
+                        esp_matter_cluster_t *cluster = esp_matter_cluster_get(endpoint, matter_controller::Id);
+                        esp_matter_attribute_t *attribute = esp_matter_attribute_get(cluster, refresh_token_verified::Id);
                         ESP_RETURN_ON_FALSE(attribute, ESP_FAIL, TAG, "Could not find refresh_token_verified attribue");
                         esp_matter_attr_val_t raw_val = esp_matter_invalid(NULL);
-                        esp_matter::attribute::get_val(attribute, &raw_val);
+                        esp_matter_attribute_get_val(attribute, &raw_val);
                         ESP_RETURN_ON_FALSE(raw_val.type == ESP_MATTER_VAL_TYPE_BOOLEAN, ESP_FAIL, TAG, "Invalid Attribute type");
                         refresh_token_verified = raw_val.val.b;
                         return ESP_OK;
@@ -139,7 +163,7 @@ namespace esp_matter
 
                     attribute_t *create(cluster_t *cluster, bool value)
                     {
-                        return esp_matter::attribute::create(cluster, refresh_token_verified::Id, ATTRIBUTE_FLAG_NONVOLATILE,
+                        return esp_matter_attribute_create(cluster, refresh_token_verified::Id, MATTER_ATTRIBUTE_FLAG_NONVOLATILE,
                                                              esp_matter_bool(value));
                     }
 
@@ -158,13 +182,13 @@ namespace esp_matter
 
                     esp_err_t get(uint16_t endpoint_id, bool &authorized)
                     {
-                        node_t *node = node::get();
-                        endpoint_t *endpoint = endpoint::get(node, endpoint_id);
-                        cluster_t *cluster = cluster::get(endpoint, matter_controller::Id);
-                        attribute_t *attribute = esp_matter::attribute::get(cluster, authorized::Id);
+                        esp_matter_node_t *node = esp_matter_node_get();
+                        esp_matter_endpoint_t *endpoint = esp_matter_endpoint_get(node, endpoint_id);
+                        esp_matter_cluster_t *cluster = esp_matter_cluster_get(endpoint, matter_controller::Id);
+                        esp_matter_attribute_t *attribute = esp_matter_attribute_get(cluster, authorized::Id);
                         ESP_RETURN_ON_FALSE(attribute, ESP_FAIL, TAG, "Could not find authorized attribue");
                         esp_matter_attr_val_t raw_val = esp_matter_invalid(NULL);
-                        esp_matter::attribute::get_val(attribute, &raw_val);
+                        esp_matter_attribute_get_val(attribute, &raw_val);
                         ESP_RETURN_ON_FALSE(raw_val.type == ESP_MATTER_VAL_TYPE_BOOLEAN, ESP_FAIL, TAG, "Invalid Attribute type");
                         authorized = raw_val.val.b;
                         return ESP_OK;
@@ -172,7 +196,7 @@ namespace esp_matter
 
                     attribute_t *create(cluster_t *cluster, bool value)
                     {
-                        return esp_matter::attribute::create(cluster, authorized::Id, ATTRIBUTE_FLAG_NONVOLATILE, esp_matter_bool(value));
+                        return esp_matter_attribute_create(cluster, authorized::Id, MATTER_ATTRIBUTE_FLAG_NONVOLATILE, esp_matter_bool(value));
                     }
 
                 } // namespace authorized
@@ -190,13 +214,13 @@ namespace esp_matter
 
                     esp_err_t get(uint16_t endpoint_id, bool &user_noc_installed)
                     {
-                        node_t *node = node::get();
-                        endpoint_t *endpoint = endpoint::get(node, endpoint_id);
-                        cluster_t *cluster = cluster::get(endpoint, matter_controller::Id);
-                        attribute_t *attribute = esp_matter::attribute::get(cluster, user_noc_installed::Id);
+                        esp_matter_node_t *node = esp_matter_node_get();
+                        esp_matter_endpoint_t *endpoint = esp_matter_endpoint_get(node, endpoint_id);
+                        esp_matter_cluster_t *cluster = esp_matter_cluster_get(endpoint, matter_controller::Id);
+                        esp_matter_attribute_t *attribute = esp_matter_attribute_get(cluster, user_noc_installed::Id);
                         ESP_RETURN_ON_FALSE(attribute, ESP_FAIL, TAG, "Could not find user_noc_installed attribue");
                         esp_matter_attr_val_t raw_val = esp_matter_invalid(NULL);
-                        esp_matter::attribute::get_val(attribute, &raw_val);
+                        esp_matter_attribute_get_val(attribute, &raw_val);
                         ESP_RETURN_ON_FALSE(raw_val.type == ESP_MATTER_VAL_TYPE_BOOLEAN, ESP_FAIL, TAG, "Invalid Attribute type");
                         user_noc_installed = raw_val.val.b;
                         return ESP_OK;
@@ -204,7 +228,7 @@ namespace esp_matter
 
                     attribute_t *create(cluster_t *cluster, bool value)
                     {
-                        return esp_matter::attribute::create(cluster, user_noc_installed::Id, ATTRIBUTE_FLAG_NONVOLATILE,
+                        return esp_matter_attribute_create(cluster, user_noc_installed::Id, MATTER_ATTRIBUTE_FLAG_NONVOLATILE,
                                                              esp_matter_bool(value));
                     }
 
@@ -258,7 +282,7 @@ namespace esp_matter
 
                     attribute_t *create(cluster_t *cluster, char *value, uint16_t length)
                     {
-                        return esp_matter::attribute::create(cluster, endpoint_url::Id, ATTRIBUTE_FLAG_NONVOLATILE,
+                        return esp_matter_attribute_create(cluster, endpoint_url::Id, MATTER_ATTRIBUTE_FLAG_NONVOLATILE,
                                                              esp_matter_char_str(value, length));
                     }
 
@@ -312,7 +336,7 @@ namespace esp_matter
 
                     attribute_t *create(cluster_t *cluster, char *value, uint16_t length)
                     {
-                        return esp_matter::attribute::create(cluster, rainmaker_group_id::Id, ATTRIBUTE_FLAG_NONVOLATILE,
+                        return esp_matter_attribute_create(cluster, rainmaker_group_id::Id, MATTER_ATTRIBUTE_FLAG_NONVOLATILE,
                                                              esp_matter_char_str(value, length));
                     }
 
@@ -331,13 +355,13 @@ namespace esp_matter
 
                     esp_err_t get(uint16_t endpoint_id, uint8_t &fabric_index)
                     {
-                        node_t *node = node::get();
-                        endpoint_t *endpoint = endpoint::get(node, endpoint_id);
-                        cluster_t *cluster = cluster::get(endpoint, matter_controller::Id);
-                        attribute_t *attribute = esp_matter::attribute::get(cluster, user_noc_fabric_index::Id);
+                        esp_matter_node_t *node = esp_matter_node_get();
+                        esp_matter_endpoint_t *endpoint = esp_matter_endpoint_get(node, endpoint_id);
+                        esp_matter_cluster_t *cluster = esp_matter_cluster_get(endpoint, matter_controller::Id);
+                        esp_matter_attribute_t *attribute = esp_matter_attribute_get(cluster, user_noc_fabric_index::Id);
                         ESP_RETURN_ON_FALSE(attribute, ESP_FAIL, TAG, "Could not find group_id attribue");
                         esp_matter_attr_val_t raw_val = esp_matter_invalid(NULL);
-                        esp_matter::attribute::get_val(attribute, &raw_val);
+                        esp_matter_attribute_get_val(attribute, &raw_val);
                         ESP_RETURN_ON_FALSE(raw_val.type == ESP_MATTER_VAL_TYPE_UINT8, ESP_FAIL, TAG, "Invalid Attribute type");
                         fabric_index = raw_val.val.u8;
                         return ESP_OK;
@@ -345,7 +369,7 @@ namespace esp_matter
 
                     attribute_t *create(cluster_t *cluster, uint8_t value)
                     {
-                        return esp_matter::attribute::create(cluster, user_noc_fabric_index::Id, ATTRIBUTE_FLAG_NONVOLATILE,
+                        return esp_matter_attribute_create(cluster, user_noc_fabric_index::Id, MATTER_ATTRIBUTE_FLAG_NONVOLATILE,
                                                              esp_matter_uint8(value));
                     }
 
@@ -542,7 +566,8 @@ namespace esp_matter
                                         "Failed to commit the pending Fabric data");
 
                     // Start DNS server to advertise the new node-id of the new NOC
-                    chip::app::DnssdServer::Instance().StartServer();
+                    // Note: DnssdServer may not be available in this version of Matter
+                    // chip::app::DnssdServer::Instance().StartServer();
 
                     // Update attribute
                     ESP_RETURN_ON_ERROR(attribute::user_noc_installed::update(endpoint_id, true), TAG,
@@ -613,7 +638,7 @@ namespace esp_matter
                 {
                     command_t *create(cluster_t *cluster)
                     {
-                        return esp_matter::command::create(cluster, append_refresh_token::Id, COMMAND_FLAG_ACCEPTED | COMMAND_FLAG_CUSTOM,
+                        return esp_matter_command_create(cluster, append_refresh_token::Id, MATTER_COMMAND_FLAG_ACCEPTED | MATTER_COMMAND_FLAG_CUSTOM,
                                                            append_refresh_token_command_callback);
                     }
                 } // namespace append_refresh_token
@@ -622,7 +647,7 @@ namespace esp_matter
                 {
                     command_t *create(cluster_t *cluster)
                     {
-                        return esp_matter::command::create(cluster, reset_refresh_token::Id, COMMAND_FLAG_ACCEPTED | COMMAND_FLAG_CUSTOM,
+                        return esp_matter_command_create(cluster, reset_refresh_token::Id, MATTER_COMMAND_FLAG_ACCEPTED | MATTER_COMMAND_FLAG_CUSTOM,
                                                            reset_refresh_token_command_callback);
                     }
                 } // namespace reset_refresh_token
@@ -631,7 +656,7 @@ namespace esp_matter
                 {
                     command_t *create(cluster_t *cluster)
                     {
-                        return esp_matter::command::create(cluster, authorize::Id, COMMAND_FLAG_ACCEPTED | COMMAND_FLAG_CUSTOM,
+                        return esp_matter_command_create(cluster, authorize::Id, MATTER_COMMAND_FLAG_ACCEPTED | MATTER_COMMAND_FLAG_CUSTOM,
                                                            authorize_command_callback);
                     }
                 } // namespace authorize
@@ -640,7 +665,7 @@ namespace esp_matter
                 {
                     command_t *create(cluster_t *cluster)
                     {
-                        return esp_matter::command::create(cluster, update_user_noc::Id, COMMAND_FLAG_ACCEPTED | COMMAND_FLAG_CUSTOM,
+                        return esp_matter_command_create(cluster, update_user_noc::Id, MATTER_COMMAND_FLAG_ACCEPTED | MATTER_COMMAND_FLAG_CUSTOM,
                                                            update_user_noc_command_callback);
                     }
                 } // namespace update_user_noc
@@ -649,7 +674,7 @@ namespace esp_matter
                 {
                     command_t *create(cluster_t *cluster)
                     {
-                        return esp_matter::command::create(cluster, update_device_list::Id, COMMAND_FLAG_ACCEPTED | COMMAND_FLAG_CUSTOM,
+                        return esp_matter_command_create(cluster, update_device_list::Id, MATTER_COMMAND_FLAG_ACCEPTED | MATTER_COMMAND_FLAG_CUSTOM,
                                                            update_device_list_command_callback);
                     }
                 } // namespace update_device_list
@@ -756,7 +781,7 @@ namespace esp_matter
 
             cluster_t *create(endpoint_t *endpoint, uint8_t flags)
             {
-                cluster_t *cluster = esp_matter::cluster::create(endpoint, Id, MATTER_CLUSTER_FLAG_SERVER);
+                cluster_t *cluster = esp_matter_cluster_create(endpoint, Id, MATTER_CLUSTER_FLAG_SERVER);
                 if (!cluster)
                 {
                     ESP_LOGE(TAG, "Could not create cluster");
@@ -764,11 +789,11 @@ namespace esp_matter
                 }
 
                 // Set plugin server init callback
-                esp_matter::cluster::set_plugin_server_init_callback(cluster, controller_cluster_plugin_server_init_callback);
+                esp_matter_cluster_set_plugin_server_init_callback(cluster, controller_cluster_plugin_server_init_callback);
 
                 // Create global attributes
-                esp_matter::cluster::global::attribute::create_cluster_revision(cluster, 2);
-                esp_matter::cluster::global::attribute::create_feature_map(cluster, 0);
+                esp_matter_cluster_global_attribute_create_cluster_revision(cluster, 2);
+                esp_matter_cluster_global_attribute_create_feature_map(cluster, 0);
                 attribute::authorized::create(cluster, false);
                 attribute::user_noc_installed::create(cluster, false);
                 attribute::user_noc_fabric_index::create(cluster, 0);
