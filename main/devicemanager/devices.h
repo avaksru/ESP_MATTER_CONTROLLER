@@ -5,6 +5,10 @@
 #include <stdbool.h>
 #include "esp_matter.h"
 
+#ifdef __cplusplus
+#include <optional>
+#endif
+
 #define CONTROLLER_MAGIC 0x4D415454
 
 #ifdef __cplusplus
@@ -144,20 +148,6 @@ extern "C"
     matter_attribute_t *add_attribute(matter_cluster_t *cluster, uint32_t attribute_id, const char *attribute_name);
 
     /**
-     * @brief Обработка отчета об атрибуте
-     *
-     * @param controller Указатель на структуру контроллера
-     * @param node_id Идентификатор узла
-     * @param endpoint_id Идентификатор endpoint
-     * @param cluster_id Идентификатор кластера
-     * @param attribute_id Идентификатор атрибута
-     * @param value Указатель на значение атрибута
-     */
-    void handle_attribute_report(matter_controller_t *controller, uint64_t node_id,
-                                 uint16_t endpoint_id, uint32_t cluster_id,
-                                 uint32_t attribute_id, esp_matter_attr_val_t *value, std::optional<bool> need_subscribe = std::nullopt);
-
-    /**
      * @brief Освобождение ресурсов контроллера
      *
      * @param controller Указатель на структуру контроллера
@@ -205,6 +195,13 @@ extern "C"
 
 #ifdef __cplusplus
 }
+
+// C++ only declaration with std::optional
+void handle_attribute_report(matter_controller_t *controller, uint64_t node_id,
+                             uint16_t endpoint_id, uint32_t cluster_id,
+                             uint32_t attribute_id, esp_matter_attr_val_t *value, 
+                             std::optional<bool> need_subscribe = std::nullopt);
+
 #endif
 
 #endif // DEVICES_H

@@ -334,7 +334,6 @@ namespace esp_matter
           return ESP_OK;
         }
 
-        uint16_t endpoint_id = *(uint16_t *)endpoint_id_ptr;
         free(endpoint_id_ptr);
 
         scoped_device_mgr_lock lock;

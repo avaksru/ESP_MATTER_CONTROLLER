@@ -25,7 +25,6 @@ get_filename_component(ESP_MATTER_COMPONETS_PATH "${CMAKE_CURRENT_SOURCE_DIR}/co
 
 set(EXTRA_COMPONENT_DIRS
 components
-"${ESP_MATTER_COMPONETS_PATH}/device_hal/button_driver"
 "${ESP_MATTER_COMPONETS_PATH}/device_hal"
 "${ESP_MATTER_COMPONETS_PATH}/examples/common"  
     ${extra_components_dirs_append})

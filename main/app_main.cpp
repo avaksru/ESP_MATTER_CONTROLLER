@@ -46,11 +46,8 @@ static const char *TAG = "app_main";
 uint16_t switch_endpoint_id = 0;
 extern bool device_get_flag;
 
-static uint16_t app_endpoint_id;
-
 using namespace esp_matter;
 using namespace esp_matter::attribute;
-using namespace esp_matter::endpoint;
 
 matter_controller_t g_controller = {0};
 static bool attributes_subscribed = false;

@@ -95,7 +95,7 @@ void enqueue_attribute_request(uint64_t node_id, uint16_t endpoint_id, uint32_t 
 }
 
 // Вызов из OnReadDone
-extern "C" void OnReadDone(
+void OnReadDone(
     uint64_t node_id,
     const chip::Platform::ScopedMemoryBufferWithSize<chip::app::AttributePathParams> &attr_paths,
     const chip::Platform::ScopedMemoryBufferWithSize<chip::app::EventPathParams> &event_paths)
@@ -138,7 +138,7 @@ extern "C" void OnReadDone(
 //-------------------------------------------------------------------------
 
 // Вызов из OnReadDone
-extern "C" void OnReadDone(
+void OnReadDone(
     uint64_t node_id,
     const chip::Platform::ScopedMemoryBufferWithSize<chip::app::AttributePathParams> &attr_paths,
     const chip::Platform::ScopedMemoryBufferWithSize<chip::app::EventPathParams> &event_paths)

@@ -757,18 +757,19 @@ namespace esp_matter
 
             cluster_t *create(endpoint_t *endpoint, uint8_t flags)
             {
-                cluster_t *cluster = esp_matter::cluster::create(endpoint, Id, CLUSTER_FLAG_SERVER);
+                cluster_t *cluster = esp_matter::cluster::create(endpoint, Id, MATTER_CLUSTER_FLAG_SERVER);
                 if (!cluster)
                 {
                     ESP_LOGE(TAG, "Could not create cluster");
                     return NULL;
                 }
 
-                set_plugin_server_init_callback(cluster, controller_cluster_plugin_server_init_callback);
-                add_function_list(cluster, NULL, 0);
+                // Set plugin server init callback
+                esp_matter::cluster::set_plugin_server_init_callback(cluster, controller_cluster_plugin_server_init_callback);
 
-                global::attribute::create_cluster_revision(cluster, 2);
-                global::attribute::create_feature_map(cluster, 0);
+                // Create global attributes
+                esp_matter::attribute::create(cluster, 0xFFFD, ATTRIBUTE_FLAG_NONE, esp_matter_uint8(2)); // ClusterRevision
+                esp_matter::attribute::create(cluster, 0xFFFC, ATTRIBUTE_FLAG_NONE, esp_matter_uint32(0)); // FeatureMap
                 attribute::authorized::create(cluster, false);
                 attribute::user_noc_installed::create(cluster, false);
                 attribute::user_noc_fabric_index::create(cluster, 0);

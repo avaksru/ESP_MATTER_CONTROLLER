@@ -1,0 +1,136 @@
+# =============================================================================
+# Nightly Build Workflow for ESP Matter Controller
+# Ежедневная сборка и публикация прошивки
+# =============================================================================
+
+name: Nightly Build
+
+# Триггеры / Triggers
+on:
+  schedule:
+    # Каждый день в 00:00 UTC / Every day at 00:00 UTC
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+    # Ручной запуск / Manual trigger
+
+# Права доступа / Permissions
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  build-and-release:
+    name: Build & Release
+    runs-on: ubuntu-latest
+
+    steps:
+      # =========================================================================
+      # Шаг 1: Клонирование репозитория / Checkout repository
+      # =========================================================================
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Полная история для корректного SHA
+
+      # =========================================================================
+      # Шаг 2: Сборка прошивки с ESP-IDF / Build firmware with ESP-IDF
+      # =========================================================================
+      - name: 🔨 Build firmware with ESP-IDF v5.3
+        uses: espressif/esp-idf-ci-action@v1
+        with:
+          esp_idf_version: v5.3
+          target: esp32s3
+          path: '.'
+          command: idf.py build
+
+      # =========================================================================
+      # Шаг 3: Проверка наличия файла прошивки / Verify firmware file exists
+      # =========================================================================
+      - name: ✅ Verify firmware binary exists
+        run: |
+          if [ ! -f build/esp_matter_controller.bin ]; then
+            echo "❌ ERROR: Firmware binary not found at build/esp_matter_controller.bin"
+            exit 1
+          fi
+          echo "✅ Firmware binary found:"
+          ls -lh build/esp_matter_controller.bin
+
+      # =========================================================================
+      # Шаг 4: Удаление старого релиза и тега / Delete old release and tag
+      # =========================================================================
+      - name: 🗑️ Delete old nightly release and tag
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Удаляем релиз с тегом nightly, если существует
+          # Delete release with nightly tag if it exists
+          if gh release view nightly &>/dev/null; then
+            echo "🗑️ Deleting old nightly release..."
+            gh release delete nightly --yes --cleanup-tag
+            echo "✅ Old release and tag deleted"
+          else
+            echo "ℹ️ No existing nightly release found, skipping deletion"
+          fi
+
+      # =========================================================================
+      # Шаг 5: Подготовка описания релиза / Prepare release body
+      # =========================================================================
+      - name: 📝 Prepare release body
+        id: release_body
+        run: |
+          # Формируем дату и время сборки / Format build date and time
+          BUILD_DATE=$(date -u '+%Y-%m-%d %H:%M:%S UTC')
+          COMMIT_SHA=$(git rev-parse --short HEAD)
+          COMMIT_SHA_FULL=$(git rev-parse HEAD)
+          
+          # Формируем тело релиза / Format release body
+          cat << BODY_EOF > release_body.md
+          ## 🌙 Nightly Build
+          
+          **Дата сборки / Build Date:** ${BUILD_DATE}
+          **Коммит / Commit:** [\`${COMMIT_SHA}\`](https://github.com/avaksru/ESP_MATTER_CONTROLLER/commit/${COMMIT_SHA_FULL})
+          
+          ---
+          
+          ### 🚀 Прошить через браузер / Flash via Browser
+          
+          [![Flash with ESP Launchpad](https://img.shields.io/badge/Flash%20via%20ESP%20Launchpad-007ACC?style=for-the-badge&logo=espressif&logoColor=white)](https://espressif.github.io/esp-launchpad/?bin=https://github.com/avaksru/ESP_MATTER_CONTROLLER/releases/download/nightly/esp_matter_controller.bin)
+          
+          Или открой вручную: https://espressif.github.io/esp-launchpad/ и в режиме DIY укажи ссылку на bin.
+          
+          ---
+          
+          > ⚠️ **Внимание:** Это автоматическая сборка. Используйте на свой риск.
+          > **Warning:** This is an automated build. Use at your own risk.
+          BODY_EOF
+
+      # =========================================================================
+      # Шаг 6: Создание нового релиза / Create new nightly release
+      # =========================================================================
+      - name: 🚀 Create nightly release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: nightly
+          name: "🌙 Nightly Build"
+          body_path: release_body.md
+          files: build/esp_matter_controller.bin
+          prerelease: true
+          make_latest: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # =========================================================================
+      # Шаг 7: Вывод информации о релизе / Print release info
+      # =========================================================================
+      - name: 📋 Release info
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "=========================================="
+          echo "✅ Nightly build completed successfully!"
+          echo "=========================================="
+          echo ""
+          echo "📦 Release: nightly"
+          echo "🔗 URL: https://github.com/avaksru/ESP_MATTER_CONTROLLER/releases/tag/nightly"
+          echo ""
+          gh release view nightly --json tagName,name,isPrerelease,publishedAt
