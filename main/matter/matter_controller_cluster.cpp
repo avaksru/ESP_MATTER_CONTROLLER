@@ -767,8 +767,8 @@ namespace esp_matter
                 esp_matter::cluster::set_plugin_server_init_callback(cluster, controller_cluster_plugin_server_init_callback);
 
                 // Create global attributes
-                esp_matter::attribute::create(cluster, 0xFFFD, ATTRIBUTE_FLAG_NONE, esp_matter_uint8(2)); // ClusterRevision
-                esp_matter::attribute::create(cluster, 0xFFFC, ATTRIBUTE_FLAG_NONE, esp_matter_uint32(0)); // FeatureMap
+                esp_matter::cluster::global::attribute::create_cluster_revision(cluster, 2);
+                esp_matter::cluster::global::attribute::create_feature_map(cluster, 0);
                 attribute::authorized::create(cluster, false);
                 attribute::user_noc_installed::create(cluster, false);
                 attribute::user_noc_fabric_index::create(cluster, 0);
