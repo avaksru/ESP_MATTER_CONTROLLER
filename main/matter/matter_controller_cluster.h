@@ -17,14 +17,10 @@
 #include <esp_err.h>
 #include <esp_matter.h>
 #include <esp_matter_core.h>
+#include <esp_matter_attribute.h>
+#include <esp_matter_cluster.h>
+#include <esp_matter_command.h>
 
-// Forward declarations for types used in this header
-namespace esp_matter {
-    struct attribute_t;
-    struct command_t;
-    struct cluster_t;
-    struct endpoint_t;
-}
 
 #define ESP_MATTER_RAINMAKER_MAX_ACCESS_TOKEN_LEN 2048
 #define ESP_MATTER_RAINMAKER_MAX_REFRESH_TOKEN_LEN 2048
