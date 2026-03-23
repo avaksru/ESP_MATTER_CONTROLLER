@@ -9,9 +9,9 @@ CONFIG_OPENTHREAD_SRP_CLIENT=n
 CONFIG_OPENTHREAD_DNS_CLIENT=n
 CONFIG_THREAD_TASK_STACK_SIZE=8192
 
-#enable BT
-CONFIG_BT_ENABLED=y
-CONFIG_BT_NIMBLE_ENABLED=y
+#disable BT (not used in this project, causes linker errors)
+CONFIG_BT_ENABLED=n
+CONFIG_BT_NIMBLE_ENABLED=n
 
 #LwIP config for OpenThread
 CONFIG_LWIP_IPV6_AUTOCONFIG=y
@@ -71,8 +71,8 @@ CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG=y
 # Enable project configurations
 CONFIG_CHIP_PROJECT_CONFIG="main/matter_project_config.h"
 
-# Enable ble controller
-CONFIG_ENABLE_ESP32_BLE_CONTROLLER=y
+# Disable ble controller (not used in this project, causes linker errors)
+CONFIG_ENABLE_ESP32_BLE_CONTROLLER=n
 
 # Use SPIRAM and external alloc
 CONFIG_SPIRAM=y

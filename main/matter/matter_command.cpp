@@ -250,7 +250,7 @@ namespace esp_matter
             return ESP_OK;
         }
 
-#if defined(CONFIG_ENABLE_ESP32_BLE_CONTROLLER) && defined(CONFIG_ESP_MATTER_COMMISSIONER_ENABLE)
+#if CONFIG_ESP_MATTER_COMMISSIONER_ENABLE
         int char_to_int(char ch)
         {
             if ('A' <= ch && ch <= 'F')
@@ -292,7 +292,7 @@ namespace esp_matter
             }
             return true;
         }
-#endif // defined(CONFIG_ENABLE_ESP32_BLE_CONTROLLER) && defined(CONFIG_ESP_MATTER_COMMISSIONER_ENABLE)
+#endif // CONFIG_ESP_MATTER_COMMISSIONER_ENABLE
 
 #if CONFIG_ESP_MATTER_COMMISSIONER_ENABLE
         esp_err_t controller_pairing(int argc, char **argv)
