@@ -12,3 +12,4 @@ CONFIG_ESP_MATTER_ENABLE_MATTER_SERVER=n
 # Disable Bluetooth (not used in this project, causes linker errors)
 CONFIG_BT_ENABLED=n
 CONFIG_BT_NIMBLE_ENABLED=n
+CONFIG_ENABLE_CHIPOBLE=n

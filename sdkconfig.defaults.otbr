@@ -12,6 +12,7 @@ CONFIG_THREAD_TASK_STACK_SIZE=8192
 #disable BT (not used in this project, causes linker errors)
 CONFIG_BT_ENABLED=n
 CONFIG_BT_NIMBLE_ENABLED=n
+CONFIG_ENABLE_CHIPOBLE=n
 
 #LwIP config for OpenThread
 CONFIG_LWIP_IPV6_AUTOCONFIG=y
